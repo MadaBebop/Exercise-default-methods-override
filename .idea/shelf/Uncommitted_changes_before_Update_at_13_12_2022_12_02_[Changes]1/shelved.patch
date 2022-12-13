@@ -1,0 +1,197 @@
+Index: src/main/java/it/develhope/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/it/develhope/Main.java b/src/main/java/it/develhope/Main.java
+--- a/src/main/java/it/develhope/Main.java	
++++ b/src/main/java/it/develhope/Main.java	
+@@ -1,7 +1,48 @@
+-package org.example;
++package it.develhope;
+ 
+ public class Main {
+     public static void main(String[] args) {
+-        System.out.println("Hello world!");
++        //Creo 4 smartphonePrice:
++        //Producer
++        SmartphonePrice p1 = new SmartphonePrice("Dollar", 250);
++        SmartphonePrice p2 = new SmartphonePrice("Dollar", 350);
++        //Retail
++        SmartphonePrice r1 = new SmartphonePrice("Sterlin", 100);
++        SmartphonePrice r2 = new SmartphonePrice("Franch", 150);
++
++        //Creo 2 smartphone:
++        //Producer
++        Smartphone producer = new Smartphone("Nokia", "Aqua", 120, p1, p2);
++        //Retail
++        Smartphone retail = new Smartphone("Motorola", "Motor", 100, r1, r2);
++
++        //Stampa dettagli degli smartphone
++        System.out.println(producer.toString());
++        System.out.println(retail.toString());
++
++        //Stampa uguaglianza
++        System.out.println("\nSono uguali i due telefoni?");
++        System.out.println(producer.equals(retail));
++
++        System.out.println("________________________________________________________\n");
++
++        //Creiamo il clone
++        Smartphone clone;
++        try {
++            clone = new Smartphone();
++            clone = producer.clone();
++        } catch (CloneNotSupportedException e) {
++            e.printStackTrace(System.out); //?non sono sicuro
++            //System.out.println("Stack trace: " + e.getMessage());
++            throw new RuntimeException(e);
++        }
++
++        //Print Dettagli clone
++        System.out.println(clone.toString());
++
++        //Sono i due oggetti producer e cloned uguali?
++        System.out.println("\nSono clone (di producer) e producer uguali?");
++        System.out.println( producer.equals(clone));
++
+     }
+ }
+\ No newline at end of file
+Index: src/main/java/it/develhope/SmartphonePrice.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/it/develhope/SmartphonePrice.java b/src/main/java/it/develhope/SmartphonePrice.java
+--- a/src/main/java/it/develhope/SmartphonePrice.java	
++++ b/src/main/java/it/develhope/SmartphonePrice.java	
+@@ -1,2 +1,41 @@
+-package it.develhope;public class SmartphonePrice {
++package it.develhope;
++
++import java.util.HashMap;
++
++public class SmartphonePrice implements Cloneable{
++    //Variabili
++    String priceType;
++    int priceInEuros;
++
++    //Costruttore
++    public SmartphonePrice(String priceType, int priceInEuros) {
++        this.priceType = priceType;
++        this.priceInEuros = priceInEuros;
++    }
++
++
++    @Override
++    public String toString() {
++        return "\nSP----> PriceType: " + priceType + ", PriceInEuros: " + priceInEuros;
++    }
++
++    @Override
++    public boolean equals(Object obj) {
++        if (this == obj)
++            return true;
++        if( !(obj instanceof SmartphonePrice) || obj == null) {   //vediamo se non sono identici o null
++            return false;
++        }
++        return ((SmartphonePrice) obj).priceType == priceType && ((SmartphonePrice) obj).priceInEuros == priceInEuros;  // Controlliamo le due variabili di smartphonePrice
++    }
++
++    @Override
++    public int hashCode() {
++        //Sempre hashcode personale (Algoritmo uguale a quello di Smartphone)
++        int result = 17;
++        result = 31 * result + priceType.hashCode();
++        result = 31 * result + priceInEuros;
++        return result;
++    }
++
+ }
+Index: src/main/java/it/develhope/Smartphone.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/it/develhope/Smartphone.java b/src/main/java/it/develhope/Smartphone.java
+--- a/src/main/java/it/develhope/Smartphone.java	
++++ b/src/main/java/it/develhope/Smartphone.java	
+@@ -1,2 +1,76 @@
+-package org.example;public class Smartphone {
++package it.develhope;
++
++public class Smartphone implements Cloneable {
++    String brandName;
++    String modelName;
++    int batterymAh;
++
++    SmartphonePrice producerPrice;
++    SmartphonePrice retailPrice;
++
++    //Constructor vuoto
++    public Smartphone() {}
++
++    //Constructor
++    public Smartphone(String brandName, String modelName, int batterymAh, SmartphonePrice producerPrice, SmartphonePrice retailPrice) {
++        this.brandName = brandName;
++        this.modelName = modelName;
++        this.batterymAh = batterymAh;
++        this.producerPrice = producerPrice;
++        this.retailPrice = retailPrice;
++    }
++
++    @Override
++    public String toString() {
++        //SmartphonePrice details
++        return "Brand Name: " + brandName +
++                " Model Name: " + modelName +
++                " Battery: " + batterymAh +
++                producerPrice.toString() +
++                retailPrice.toString();
++    }
++
++    @Override
++    public int hashCode() {
++        //We create our personal hash code
++        //The 17 and 31 hash code idea is from the classic Java book – effective Java : item 9
++        int result = 17;
++        result = 31 * result + brandName.hashCode();
++        result = 31 * result + batterymAh;
++        result = 31 * result + modelName.hashCode();
++        return result;
++    }
++
++
++    @Override
++    public boolean equals(Object obj) {
++
++        if (this == obj)
++            return true;
++        if( !(obj instanceof Smartphone) || obj == null) {   //35-38 vediamo se non sono identici o null
++            return false;
++        }
++
++        Smartphone tmp = (Smartphone)obj;
++        //Controlliamo se sono uguali oltre che identici
++        return brandName == tmp.brandName &&
++                modelName == tmp.modelName &&
++                batterymAh == tmp.batterymAh &&
++                producerPrice.equals(tmp.producerPrice) &&
++                retailPrice.equals(tmp.retailPrice);
++        }
++
++
++    //Overload (L'esercizio dice: the return value is a Smartphone object. Quindi non effettuiamo un override)
++    protected Smartphone clone() throws CloneNotSupportedException {
++        //Creiamo l'oggetto Smartphone
++        Smartphone clonedSmartphone = (Smartphone) super.clone();
++        //Diamo gli stessi dati di quello precedente
++        clonedSmartphone.brandName = brandName;
++        clonedSmartphone.modelName = modelName;
++        clonedSmartphone.batterymAh = batterymAh;
++        //Ritorniamo l'oggetto clonedSmartphone
++        return clonedSmartphone;
++    }
++
+ }
